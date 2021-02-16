@@ -16,14 +16,9 @@ class Key:
     def triad(self, msg):
         rel_note = (msg.note - self.base) % 12
         if rel_note in self.tonality:
-            yield msg
-            rel_third = self.tonality[(self.tonality.index(rel_note) + 2)]
-            third = msg.copy(note=msg.note - rel_note + rel_third)
-            yield third
-            rel_fifth = self.tonality[(self.tonality.index(rel_note) + 4)]
-            fifth = msg.copy(note=msg.note - rel_note + rel_fifth)
-            yield fifth
-            print(msg, third, fifth)
+            for steps in (0, 2, 4):
+                rel = self.tonality[(self.tonality.index(rel_note) + steps)]
+                yield msg.copy(note=msg.note - rel_note + rel)
 
 with mido.open_input() as in_port, mido.open_output() as out_port:
     for msg in in_port:
