@@ -6,6 +6,11 @@ def major(msg):
     yield msg.copy(note=msg.note+4)
     yield msg.copy(note=msg.note+7)
 
+def minor(msg):
+    yield msg
+    yield msg.copy(note=msg.note+3)
+    yield msg.copy(note=msg.note+7)
+
 with mido.open_input() as in_port, mido.open_output() as out_port:
     for msg in in_port:
         print(msg)
