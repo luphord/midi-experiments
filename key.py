@@ -22,8 +22,11 @@ class Key:
     
     def triad(self, msg):
         yield from self.chord(msg, (0, 2, 4))
+    
+    def tetrad(self, msg):
+        yield from self.chord(msg, (0, 2, 4, 6))
 
 with mido.open_input() as in_port, mido.open_output() as out_port:
     for msg in in_port:
-        for m in Key(60, major).triad(msg):
+        for m in Key(60, major).tetrad(msg):
             out_port.send(m)
