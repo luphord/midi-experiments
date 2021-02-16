@@ -13,12 +13,15 @@ class Key:
             assert note < 12
         self.tonality = tonality + tuple(n + 12 for n in tonality)
     
-    def triad(self, msg):
+    def chord(self, msg, steps):
         rel_note = (msg.note - self.base) % 12
         if rel_note in self.tonality:
-            for steps in (0, 2, 4):
+            for steps in steps:
                 rel = self.tonality[(self.tonality.index(rel_note) + steps)]
                 yield msg.copy(note=msg.note - rel_note + rel)
+    
+    def triad(self, msg):
+        yield from self.chord(msg, (0, 2, 4))
 
 with mido.open_input() as in_port, mido.open_output() as out_port:
     for msg in in_port:
