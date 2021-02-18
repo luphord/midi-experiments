@@ -5,7 +5,7 @@ Experiments with MIDI and Python.
 
 Ensure that the following system packages are installed:
 
-    sudo apt install libasound2-dev libjack0 libjack-dev
+    sudo apt install python3-dev libasound2-dev libjack0 libjack-dev
 
 Then run (ideally within a virtual environment)
 
