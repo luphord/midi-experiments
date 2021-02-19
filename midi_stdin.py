@@ -4,7 +4,7 @@ import sys
 
 parser = mido.Parser()
 
-with mido.open_output("Synth input port (2986:0)") as out_port:
+with mido.open_output("fluidsynth") as out_port:
     while True:
         msg_bytes = sys.stdin.buffer.read(1)
         parser.feed(msg_bytes)
