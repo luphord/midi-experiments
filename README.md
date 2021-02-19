@@ -10,3 +10,9 @@ Ensure that the following system packages are installed:
 Then run (ideally within a virtual environment)
 
     pip install -r requirements.txt
+
+## FluidSynth
+
+Before running any of the programs in this repo, start [FluidSynth](https://www.fluidsynth.org) by 
+
+    fluidsynth -a alsa -p fluidsynth /usr/share/sounds/sf2/FluidR3_GM.sf2
