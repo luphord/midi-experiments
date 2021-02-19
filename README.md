@@ -22,8 +22,14 @@ Before running any of the programs in this repo, start [FluidSynth](https://www.
 Using [websocketd](https://github.com/joewalnes/websocketd) you can send MIDI messages
 from a web page via websockets and pipe them into `midi_stdin.py` to forward them to `fluidsynth`.
 
-    websocketd --binary --devconsole --port 8080 ./midi_stdin.py
+    websocketd --binary --port 8080 --devconsole ./midi_stdin.py
 
 Try running the following JavaScript code in your browser's dev console:
 
     ws.send(new Uint8Array([ 144, 62, 80 ]))
+
+## MIDI Touch Instruments
+
+To start the MIDI touch instruments run
+
+    websocketd --binary --port 8080 --staticdir ./midi-touch-instruments ./midi_stdin.py
