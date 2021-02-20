@@ -30,6 +30,10 @@ but rather a textual representation of the commands:
 
 Note that a linebreak (`\n`) is required for `fluidsynth` to accept the command.
 
+If you want to run `fluidsynth` in the background, i.e. send it to background with `&`,
+make sure that you pass `-i/--no-shell` and `-s/--server`. Both options are required
+in this case, even if you do not want to listen to tcp.
+
 ## MIDI over Websockets
 
 Using [websocketd](https://github.com/joewalnes/websocketd) you can send MIDI messages

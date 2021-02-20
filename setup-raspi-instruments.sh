@@ -16,6 +16,6 @@ chmod +x websocketd
 sudo mv websocketd /usr/bin
 
 echo '# MIDI touch instruments' >> ~/.bashrc
-echo 'fluidsynth -a alsa -p fluidsynth /usr/share/sounds/sf2/FluidR3_GM.sf2 --server &' >> ~/.bashrc
+echo 'fluidsynth -a alsa -p fluidsynth /usr/share/sounds/sf2/FluidR3_GM.sf2 --server --no-shell &' >> ~/.bashrc
 echo 'git -C ~/midi-experiments pull' >> ~/.bashrc
 echo 'websocketd --binary --port 8080 --staticdir ~/midi-experiments/midi-touch-instruments ~/midi-experiments/midi_stdin.py &' >> ~/.bashrc
