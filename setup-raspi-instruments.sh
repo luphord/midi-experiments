@@ -7,7 +7,7 @@ sudo apt install -y fluidsynth git python3-pip python3-dev libasound2-dev libjac
 
 git clone https://github.com/luphord/midi-experiments.git
 cd midi-experiments
-sudo pip3 install -r requirements.txt
+pip3 install --user -r requirements.txt
 
 cd ~/Downloads
 wget https://github.com/joewalnes/websocketd/releases/download/v0.4.1/websocketd-0.4.1-linux_arm.zip
