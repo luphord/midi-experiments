@@ -3,7 +3,7 @@
 # Setup a Raspberry Pi (Zero) for the MIDI touch instruments
 
 sudo apt update
-sudo apt install fluidsynth git python3-dev libasound2-dev libjack0 libjack-dev
+sudo apt install -y fluidsynth git python3-pip python3-dev libasound2-dev libjack0 libjack-dev
 
 git clone https://github.com/luphord/midi-experiments.git
 cd midi-experiments
