@@ -17,6 +17,19 @@ Before running any of the programs in this repo, start [FluidSynth](https://www.
 
     fluidsynth -a alsa -p fluidsynth /usr/share/sounds/sf2/FluidR3_GM.sf2
 
+You can also start `fluidsynth` as a tcp server to accept MIDI input via the network by
+
+    fluidsynth -a alsa -p fluidsynth /usr/share/sounds/sf2/FluidR3_GM.sf2 --server
+
+The default port will be `9800` and the data format appears to
+[*not* be binary MIDI](https://fluid-dev.nongnu.narkive.com/ovSZ8tNW/how-to-send-manual-midi-commands-to-fluidsynth-from-another-program#post2)
+but rather a textual representation of the commands:
+
+    noteon 1 60 64
+    noteoff 1 60 64
+
+Note that a linebreak (`\n`) is required for `fluidsynth` to accept the command.
+
 ## MIDI over Websockets
 
 Using [websocketd](https://github.com/joewalnes/websocketd) you can send MIDI messages
