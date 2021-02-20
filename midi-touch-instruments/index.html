@@ -9,64 +9,36 @@
   <meta name="author" content="luphord">
 
   <style>
-        body {
+        html, body {
             background-color: rgb(189, 183, 183);
+            margin: 0;
+            width: 100%;
+            height: 100%;
         }
-      
+
         .button {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            width: 5em;
-            height: 5em;
-            padding: 1em;
-            margin: 1rem auto;
-            box-sizing: border-box;
-
-            border-radius: 20%;
-
-            font-size: 2em;
-            text-align: center;
-            color: #fff;
-            background-color: rgb(11, 99, 161);
-
             cursor: pointer;
-            touch-action: none;
-            user-select: none;
         }
-
-        .button:active {
-            background-color: rgb(141, 195, 231);
-        }
-
-        .board {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            grid-auto-rows: auto;
-            max-width: 50em;
-            margin: auto;
-            background-color: rgb(189, 183, 183);
-        }
-
   </style>
 </head>
 
 <body>
     <button id="fullscreenButton">Fullscreen</button>
-    <div id="board" class="board">
-        <div data-note="60" class="button">c</div>
-        <div data-note="62" class="button">d</div>
-        <div data-note="64" class="button">e</div>
-        <div data-note="65" class="button">f</div>
-        <div data-note="67" class="button">g</div>
-        <div data-note="69" class="button">a</div>
-        <div data-note="70" class="button">b</div>
-        <div data-note="72" class="button">c</div>
-    </div>
+        <svg width="100%" viewBox="0 0 145 75">
+            <rect class="button" data-note="60" x="5" y="5" width="30" height="30" rx="5" fill="rgb(11, 99, 161)" />
+            <rect class="button" data-note="62" x="40" y="5" width="30" height="30" rx="5" fill="rgb(11, 99, 161)" />
+            <rect class="button" data-note="64" x="75" y="5" width="30" height="30" rx="5" fill="rgb(11, 99, 161)" />
+            <rect class="button" data-note="65" x="110" y="5" width="30" height="30" rx="5" fill="rgb(11, 99, 161)" />
+
+            <rect class="button" data-note="67" x="5" y="40" width="30" height="30" rx="5" fill="rgb(11, 99, 161)" />
+            <rect class="button" data-note="69" x="40" y="40" width="30" height="30" rx="5" fill="rgb(11, 99, 161)" />
+            <rect class="button" data-note="71" x="75" y="40" width="30" height="30" rx="5" fill="rgb(11, 99, 161)" />
+            <rect class="button" data-note="72" x="110" y="40" width="30" height="30" rx="5" fill="rgb(11, 99, 161)" />
+        </svg>
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
     <script>
         document.getElementById("fullscreenButton").addEventListener("click", function() {
-            document.getElementById("board").requestFullscreen();
+            document.documentElement.requestFullscreen();
         });
         var wspath = 'ws://' + location.hostname + (location.port ? ':' + location.port : '');
         console.log(wspath);
@@ -75,10 +47,12 @@
         interact('.button')
             .on('down', function (event) {
                 ws.send(new Uint8Array([ 144, Number(event.target.dataset.note), 64 ]));
+                event.target.style.fill = "rgb(141, 195, 231)";
                 console.log("Press " + event.target.dataset.note);
             })
             .on('up', function (event) {
                 ws.send(new Uint8Array([ 128, Number(event.target.dataset.note), 64 ]));
+                event.target.style.fill = "rgb(11, 99, 161)";
                 console.log("Release " + event.target.dataset.note);
             });
     </script>
