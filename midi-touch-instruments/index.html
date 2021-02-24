@@ -36,22 +36,56 @@
             <rect class="button" data-note="72" x="110" y="40" width="30" height="30" rx="5" fill="rgb(11, 99, 161)" />
         </svg>
     <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+    <script src='https://surikov.github.io/webaudiofont/npm/dist/WebAudioFontPlayer.js'></script>
+    <script src='https://surikov.github.io/webaudiofontdata/sound/0000_FluidR3_GM_sf2_file.js'></script>
     <script>
         document.getElementById("fullscreenButton").addEventListener("click", function() {
             document.documentElement.requestFullscreen();
         });
-        var wspath = 'ws://' + location.hostname + (location.port ? ':' + location.port : '');
-        console.log(wspath);
-        var ws = new WebSocket(wspath);
-        ws.onclose   = function() { alert("Disconnected!"); };
+        //var wspath = 'ws://' + location.hostname + (location.port ? ':' + location.port : '');
+        //console.log(wspath);
+        //var ws = new WebSocket(wspath);
+        //ws.onclose   = function() { alert("Disconnected!"); };
+        //interact('.button')
+        //    .on('down', function (event) {
+        //        ws.send(new Uint8Array([ 144, Number(event.target.dataset.note), 64 ]));
+        //        event.target.style.fill = "rgb(141, 195, 231)";
+        //        console.log("Press " + event.target.dataset.note);
+        //    })
+        //    .on('up', function (event) {
+        //        ws.send(new Uint8Array([ 128, Number(event.target.dataset.note), 64 ]));
+        //        event.target.style.fill = "rgb(11, 99, 161)";
+        //        console.log("Release " + event.target.dataset.note);
+        //    });
+        var AudioContextFunc = window.AudioContext || window.webkitAudioContext;
+        var audioContext = new AudioContextFunc();
+        var player=new WebAudioFontPlayer();
+        player.loader.decodeAfterLoading(audioContext, '_tone_0000_FluidR3_GM_sf2_file');
+        var playingNotes = []
         interact('.button')
             .on('down', function (event) {
-                ws.send(new Uint8Array([ 144, Number(event.target.dataset.note), 64 ]));
+                var pitch = Number(event.target.dataset.note);
+                var envelope = player.queueWaveTable(audioContext,
+                                                     audioContext.destination,
+                                                     _tone_0000_FluidR3_GM_sf2_file,
+                                                     0,
+                                                     pitch,
+                                                     2);
                 event.target.style.fill = "rgb(141, 195, 231)";
-                console.log("Press " + event.target.dataset.note);
+                console.log("Press " + pitch);
+                playingNotes.push({
+                    pitch: pitch,
+                    envelope: envelope
+                });
             })
             .on('up', function (event) {
-                ws.send(new Uint8Array([ 128, Number(event.target.dataset.note), 64 ]));
+                var pitch = Number(event.target.dataset.note);
+                for (var i=0; i<playingNotes.length; i++) {
+                    if (playingNotes[i].pitch == pitch && playingNotes[i].envelope) {
+                        playingNotes[i].envelope.cancel();
+                        playingNotes.splice(i, 1);
+                    }
+                }
                 event.target.style.fill = "rgb(11, 99, 161)";
                 console.log("Release " + event.target.dataset.note);
             });
