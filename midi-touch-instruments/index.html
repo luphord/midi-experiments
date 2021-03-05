@@ -52,8 +52,9 @@
 
             var buttons = document.getElementsByClassName('button');
             for (var i=0; i<buttons.length; i++) {
+                var button = buttons[i];
                 
-                buttons[i].onpointerdown = function(event) {
+                button.onpointerdown = function(event) {
                     var pitch = Number(event.target.dataset.note);
                     var envelope = player.queueWaveTable(audioContext,
                                                         audioContext.destination,
@@ -69,7 +70,7 @@
                     });
                 };
 
-                buttons[i].onpointerup = function (event) {
+                button.onpointerup = button.onpointerleave = function (event) {
                     var pitch = Number(event.target.dataset.note);
                     for (var i=0; i<playingNotes.length; i++) {
                         if (playingNotes[i].pitch == pitch && playingNotes[i].envelope) {
