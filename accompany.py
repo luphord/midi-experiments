@@ -118,7 +118,7 @@ class Accompany(ttk.Frame):
     def play(self):
         with open_default_port() as out_port:
             while True:
-                out_port.send(mido.Message(type="program_change", program=gm_instruments.index(self.instrument.get())))
+                out_port.send(mido.Message(type="program_change", program=gm_instruments.index(self.instrument.get()), channel=self.mido_channel))
                 for degree in (0, 5, 7):
                     for i in range(int(self.nbeats.get())):
                         velocity = 90 if i == 0 else 64
