@@ -32,6 +32,13 @@ class Key:
         yield from self.chord(msg, (0, 2, 4, 6))
 
 
+def open_default_port():
+    for name in mido.get_output_names():
+        if "fluid" in name.lower():
+            return mido.open_output(name)
+    return mido.open_output()
+
+
 class Accompany(ttk.Frame):
 
     def __init__(self, root):
@@ -100,7 +107,7 @@ class Accompany(ttk.Frame):
         return self.chord_method(message.copy(note=message.note+60))
     
     def play(self):
-        with mido.open_output() as out_port:
+        with open_default_port() as out_port:
             while True:
                 for degree in (0, 5, 7):
                     for i in range(int(self.nbeats.get())):
