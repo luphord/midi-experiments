@@ -71,6 +71,20 @@ class Accompany(ttk.Frame):
                                increment=1)
         self.nbeats.set(4)
         self.nbeats.grid(row=4, column=1)
+        ttk.Label(self, text="Channel").grid(row=5, column=0)
+        self.channel = ttk.Spinbox(self,
+                                   from_=1,
+                                   to=12,
+                                   increment=1)
+        self.channel.set(1)
+        self.channel.grid(row=5, column=1)
+    
+    @property
+    def mido_channel(self):
+        try:
+            return int(self.channel.get()) - 1
+        except ValueError:
+            return 0
     
     def play(self):
         with mido.open_output() as out_port:
@@ -81,10 +95,10 @@ class Accompany(ttk.Frame):
                 method = key_obj.tetrad if self.maj7.get() == "on" else key_obj.triad
                 for degree in (0, 5, 7):
                     for i in range(int(self.nbeats.get())):
-                        for m in method(mido.Message(type="note_on", note=key + degree)):
+                        for m in method(mido.Message(type="note_on", note=key + degree, channel=self.mido_channel)):
                             out_port.send(m)
                         time.sleep(60 / int(self.bpm.get()))
-                        for m in method(mido.Message(type="note_off", note=key + degree)):
+                        for m in method(mido.Message(type="note_off", note=key + degree, channel=self.mido_channel)):
                             out_port.send(m)
 
 
