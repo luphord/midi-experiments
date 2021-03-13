@@ -104,7 +104,8 @@ class Accompany(ttk.Frame):
             while True:
                 for degree in (0, 5, 7):
                     for i in range(int(self.nbeats.get())):
-                        for m in self.chord(mido.Message(type="note_on", note=degree, channel=self.mido_channel)):
+                        velocity = 90 if i == 0 else 64
+                        for m in self.chord(mido.Message(type="note_on", note=degree, channel=self.mido_channel, velocity=velocity)):
                             out_port.send(m)
                         time.sleep(60 / int(self.bpm.get()))
                         for m in self.chord(mido.Message(type="note_off", note=degree, channel=self.mido_channel)):
