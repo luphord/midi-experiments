@@ -86,19 +86,28 @@ class Accompany(ttk.Frame):
         except ValueError:
             return 0
     
+    @property
+    def key_obj(self):
+        key = keys.index(self.key.get())
+        tonality = major if self.tonality.get() == "major" else minor
+        return Key(key, tonality)
+    
+    @property
+    def chord_method(self):
+        return self.key_obj.tetrad if self.maj7.get() == "on" else self.key_obj.triad
+    
+    def chord(self, message):
+        return self.chord_method(message.copy(note=message.note+60))
+    
     def play(self):
         with mido.open_output() as out_port:
             while True:
-                key = 60 + keys.index(self.key.get())
-                tonality = major if self.tonality.get() == "major" else minor
-                key_obj = Key(key, tonality)
-                method = key_obj.tetrad if self.maj7.get() == "on" else key_obj.triad
                 for degree in (0, 5, 7):
                     for i in range(int(self.nbeats.get())):
-                        for m in method(mido.Message(type="note_on", note=key + degree, channel=self.mido_channel)):
+                        for m in self.chord(mido.Message(type="note_on", note=degree, channel=self.mido_channel)):
                             out_port.send(m)
                         time.sleep(60 / int(self.bpm.get()))
-                        for m in method(mido.Message(type="note_off", note=key + degree, channel=self.mido_channel)):
+                        for m in self.chord(mido.Message(type="note_off", note=degree, channel=self.mido_channel)):
                             out_port.send(m)
 
 
