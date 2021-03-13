@@ -71,6 +71,7 @@ class ChordPlayer(ttk.Frame):
 
 if __name__ == "__main__":
     root = Tk()
+    root.title("Chord Player")
     player = ChordPlayer(root)
     player.grid()
     threading.Thread(target=player.play, daemon=True).start()

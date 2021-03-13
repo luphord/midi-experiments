@@ -90,6 +90,7 @@ class Accompany(ttk.Frame):
 
 if __name__ == "__main__":
     root = Tk()
+    root.title("Accompany")
     player = Accompany(root)
     player.grid()
     threading.Thread(target=player.play, daemon=True).start()
