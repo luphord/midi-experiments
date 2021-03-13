@@ -38,6 +38,8 @@ def open_default_port():
             return mido.open_output(name)
     return mido.open_output()
 
+with open("gm_instruments.txt") as f:
+    gm_instruments = f.read().splitlines()
 
 class Accompany(ttk.Frame):
 
@@ -85,6 +87,13 @@ class Accompany(ttk.Frame):
                                    increment=1)
         self.channel.set(1)
         self.channel.grid(row=5, column=1)
+        ttk.Label(self, text="Instrument").grid(row=6, column=0)
+        self.instrument = StringVar(value="Acoustic Grand Piano")
+        ttk.Combobox(self,
+                     textvariable=self.instrument,
+                     state="readonly",
+                     values=gm_instruments
+                     ).grid(row=6, column=1)
     
     @property
     def mido_channel(self):
@@ -109,6 +118,7 @@ class Accompany(ttk.Frame):
     def play(self):
         with open_default_port() as out_port:
             while True:
+                out_port.send(mido.Message(type="program_change", program=gm_instruments.index(self.instrument.get())))
                 for degree in (0, 5, 7):
                     for i in range(int(self.nbeats.get())):
                         velocity = 90 if i == 0 else 64
