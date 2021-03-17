@@ -1,0 +1,84 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>MIDI Touch Instruments</title>
+  <meta name="description" content="Web based MIDI touch instruments">
+  <meta name="author" content="luphord">
+
+  <style>
+        html, body {
+            background-color: rgb(189, 183, 183);
+            margin: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .button {
+            cursor: pointer;
+        }
+  </style>
+</head>
+
+<body>
+    <button id="fullscreenButton">Fullscreen</button>
+        <svg width="100%" viewBox="0 0 100 150">
+        </svg>
+    <script src='https://surikov.github.io/webaudiofont/npm/dist/WebAudioFontPlayer.js'></script>
+    <script src='https://surikov.github.io/webaudiofontdata/sound/0000_FluidR3_GM_sf2_file.js'></script>
+    <script src="midi-touch-instruments.js"></script>
+    <script>
+        const grid = instruments.create_hex_button_grid({x: 12, y: 10}, 10, 8, 6, 84);
+        for (let i = 0; i < grid.length; i++) {
+            document.querySelector("svg").appendChild(grid[i]);
+        }
+        document.addEventListener("DOMContentLoaded", function() {
+
+            document.getElementById("fullscreenButton").addEventListener("click", function() {
+                document.documentElement.requestFullscreen();
+            });
+
+            var AudioContextFunc = window.AudioContext || window.webkitAudioContext;
+            var audioContext = new AudioContextFunc();
+            var player=new WebAudioFontPlayer();
+            player.loader.decodeAfterLoading(audioContext, '_tone_0000_FluidR3_GM_sf2_file');
+            var playingNotes = [];
+
+            var buttons = document.getElementsByClassName('button');
+            for (var i=0; i<buttons.length; i++) {
+                var button = buttons[i];
+                
+                button.ontouchstart = button.onmousedown = function(event) {
+                    var pitch = Number(event.target.dataset.note);
+                    var envelope = player.queueWaveTable(audioContext,
+                                                        audioContext.destination,
+                                                        _tone_0000_FluidR3_GM_sf2_file,
+                                                        0,
+                                                        pitch,
+                                                        2);
+                    event.target.style.fill = "rgb(141, 195, 231)";
+                    console.log("Press " + pitch);
+                    playingNotes.push({
+                        pitch: pitch,
+                        envelope: envelope
+                    });
+                };
+
+                button.ontouchend = button.onmouseup = button.onmouseleave = function (event) {
+                    var pitch = Number(event.target.dataset.note);
+                    for (var i=0; i<playingNotes.length; i++) {
+                        if (playingNotes[i].pitch == pitch && playingNotes[i].envelope) {
+                            playingNotes[i].envelope.cancel();
+                            playingNotes.splice(i, 1);
+                        }
+                    }
+                    event.target.style.fill = "rgb(11, 99, 161)";
+                    console.log("Release " + event.target.dataset.note);
+                };
+            }
+        });
+    </script>
+</body>
+</html>
