@@ -46,8 +46,9 @@
             navigator.requestMIDIAccess()
                 .then(function(midiAccess) {
                     const midiOutputs = Array.from(midiAccess.outputs.values());
-                    console.log(midiOutputs);
-                    selectedMidiOutput = midiOutputs[midiOutputs.length - 1]; // arbitrarily pick the last one
+                    const outputOptions = midiOutputs.map((o, i) => "(" + i + ") " + o.name).join("\n");
+                    const index = Number(prompt("Please select MIDI port:\n" + outputOptions));
+                    selectedMidiOutput = midiOutputs[index]; // arbitrarily pick the last one
                     console.log(selectedMidiOutput);
                 });
 
