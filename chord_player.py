@@ -18,11 +18,12 @@ class Key:
         self.tonality = tonality + tuple(n + 12 for n in tonality)
     
     def chord(self, msg, steps):
-        rel_note = (msg.note - self.base) % 12
-        if rel_note in self.tonality:
-            for steps in steps:
-                rel = self.tonality[(self.tonality.index(rel_note) + steps)]
-                yield msg.copy(note=msg.note - rel_note + rel)
+        if hasattr(msg, "note"):
+            rel_note = (msg.note - self.base) % 12
+            if rel_note in self.tonality:
+                for steps in steps:
+                    rel = self.tonality[(self.tonality.index(rel_note) + steps)]
+                    yield msg.copy(note=msg.note - rel_note + rel)
     
     def triad(self, msg):
         yield from self.chord(msg, (0, 2, 4))
