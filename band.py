@@ -86,6 +86,23 @@ class Beats(Track):
         )
 
 
+class OffBeats(Beats):
+    def next_bar(self, piece: Piece) -> Iterable[Message]:
+        barlen = barlength(4, piece.bpm)
+        yield Message(
+            type="note_on", note=61, channel=9, velocity=50, time=0.125 * barlen
+        )
+        yield Message(
+            type="note_on", note=61, channel=9, velocity=50, time=0.375 * barlen
+        )
+        yield Message(
+            type="note_on", note=61, channel=9, velocity=50, time=0.625 * barlen
+        )
+        yield Message(
+            type="note_on", note=61, channel=9, velocity=50, time=0.875 * barlen
+        )
+
+
 if __name__ == "__main__":
     piece = Piece("4/4", 100, "G", "major", [1, 4, 5])
-    Player(piece, [Beats()]).play()
+    Player(piece, [Beats(), OffBeats()]).play()
