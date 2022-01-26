@@ -48,11 +48,19 @@ class Player:
     def play(self):
         with open_default_port() as out_port:
             for bars in zip(*[track.bars(self.piece) for track in self.tracks]):
+                beatsperbar = 4
+                barlength = beatsperbar * 60 / self.piece.bpm
+                messages = [
+                    msg
+                    for msg in sorted(chain(*bars), key=lambda msg: msg.time)
+                    if msg.time <= barlength
+                ]
                 bartime = 0.0
-                for msg in sorted(chain(*bars), key=lambda msg: msg.time):
+                for msg in messages:
                     time.sleep(msg.time - bartime)
                     bartime = msg.time
                     out_port.send(msg)
+                time.sleep(barlength - bartime)
 
 
 class Beats(Track):
