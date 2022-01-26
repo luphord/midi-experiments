@@ -40,6 +40,10 @@ def open_default_port():
     return mido.open_output()
 
 
+def barlength(beatsperbar, bpm):
+    return beatsperbar * 60 / bpm
+
+
 @dataclass
 class Player:
     piece: Piece
@@ -49,18 +53,18 @@ class Player:
         with open_default_port() as out_port:
             for bars in zip(*[track.bars(self.piece) for track in self.tracks]):
                 beatsperbar = 4
-                barlength = beatsperbar * 60 / self.piece.bpm
+                barlen = barlength(beatsperbar, piece.bpm)
                 messages = [
                     msg
                     for msg in sorted(chain(*bars), key=lambda msg: msg.time)
-                    if msg.time <= barlength
+                    if msg.time <= barlen
                 ]
                 bartime = 0.0
                 for msg in messages:
                     time.sleep(msg.time - bartime)
                     bartime = msg.time
                     out_port.send(msg)
-                time.sleep(barlength - bartime)
+                time.sleep(barlen - bartime)
 
 
 class Beats(Track):
@@ -69,7 +73,17 @@ class Beats(Track):
             yield list(self.next_bar(piece))
 
     def next_bar(self, piece: Piece) -> Iterable[Message]:
-        yield Message(type="note_on", note=60, channel=9, velocity=90, time=0.5)
+        barlen = barlength(4, piece.bpm)
+        yield Message(type="note_on", note=60, channel=9, velocity=90, time=0)
+        yield Message(
+            type="note_on", note=60, channel=9, velocity=60, time=0.25 * barlen
+        )
+        yield Message(
+            type="note_on", note=60, channel=9, velocity=60, time=0.5 * barlen
+        )
+        yield Message(
+            type="note_on", note=60, channel=9, velocity=60, time=0.75 * barlen
+        )
 
 
 if __name__ == "__main__":
