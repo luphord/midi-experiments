@@ -7,7 +7,44 @@ import time
 import mido
 from mido import Message
 
+major_halftones = (0, 2, 4, 5, 7, 9, 11)
+minor_halftones = (0, 2, 3, 5, 7, 8, 10)
+
 keys = "C C# D D# E F F# G G# A A# B".split()
+
+
+class Key:
+    def __init__(self, base: int, halftones: Tuple[int]):
+        self.base = base
+        for note in halftones:
+            assert note >= 0
+            assert note < 12
+        self.halftones = halftones + tuple(n + 12 for n in halftones)
+
+    def chord(self, msg, steps):
+        rel_note = (msg.note - self.base) % 12
+        print(msg.note, rel_note, self.base)
+        if rel_note in self.halftones:
+            for steps in steps:
+                rel = self.halftones[(self.halftones.index(rel_note) + steps)]
+                yield msg.copy(note=msg.note - rel_note + rel)
+
+    def triad(self, msg):
+        yield from self.chord(msg, (0, 2, 4))
+
+    def tetrad(self, msg):
+        yield from self.chord(msg, (0, 2, 4, 6))
+
+    def harmony_on(self, harmony: int, channel: int, velocity: int, time: int):
+        yield from piece.key_obj.triad(
+            Message(
+                type="note_on",
+                note=self.halftones[harmony] + 60,
+                channel=channel,
+                velocity=velocity,
+                time=time,
+            )
+        )
 
 
 @dataclass
@@ -24,6 +61,13 @@ class Piece:
     key: str
     tonality: str
     progression: List[int]
+
+    @property
+    def key_obj(self):
+        return Key(
+            keys.index(self.key),
+            major_halftones if self.tonality == "major" else minor_halftones,
+        )
 
 
 class Track(ABC):
@@ -94,6 +138,13 @@ class OffBeats(Beats):
             yield Message(type="note_on", note=61, channel=9, velocity=50, time=time)
 
 
+class BasicChordProgression(Track):
+    def bars(self, piece: Piece) -> Iterable[List[Message]]:
+        while True:
+            for harmony in piece.progression:
+                yield list(piece.key_obj.harmony_on(harmony, 0, 90, 0.0))
+
+
 if __name__ == "__main__":
-    piece = Piece(4, 100, "G", "major", [1, 4, 5])
-    Player(piece, [Beats(), OffBeats()]).play()
+    piece = Piece(4, 100, "C", "major", [0, 3, 4])
+    Player(piece, [Beats(), OffBeats(), BasicChordProgression()]).play()
