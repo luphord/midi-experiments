@@ -23,7 +23,6 @@ class Key:
 
     def chord(self, msg, steps):
         rel_note = (msg.note - self.base) % 12
-        print(msg.note, rel_note, self.base)
         if rel_note in self.halftones:
             for steps in steps:
                 rel = self.halftones[(self.halftones.index(rel_note) + steps)]
@@ -39,7 +38,7 @@ class Key:
         yield from piece.key_obj.triad(
             Message(
                 type="note_on",
-                note=self.halftones[harmony] + 60,
+                note=self.halftones[harmony] + 60 + self.base,
                 channel=channel,
                 velocity=velocity,
                 time=time,
@@ -146,5 +145,5 @@ class BasicChordProgression(Track):
 
 
 if __name__ == "__main__":
-    piece = Piece(4, 100, "C", "major", [0, 3, 4])
+    piece = Piece(4, 100, "G", "major", [0, 3, 4])
     Player(piece, [Beats(), OffBeats(), BasicChordProgression()]).play()
