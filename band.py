@@ -34,11 +34,14 @@ class Key:
     def tetrad(self, msg):
         yield from self.chord(msg, (0, 2, 4, 6))
 
+    def noteonstep(self, step):
+        return self.halftones[step] + self.base
+
     def harmony_on(self, harmony: int, channel: int, velocity: int, time: int):
         yield from piece.key_obj.triad(
             Message(
                 type="note_on",
-                note=self.halftones[harmony] + 60 + self.base,
+                note=self.noteonstep(harmony) + 60,
                 channel=channel,
                 velocity=velocity,
                 time=time,
@@ -144,6 +147,34 @@ class BasicChordProgression(Track):
                 yield list(piece.key_obj.harmony_on(harmony, 0, 90, 0.0))
 
 
+class BasicBassLine(Track):
+    def notesonbeat(self, piece, step):
+        barlen = barlength(piece.beatsperbar, piece.bpm)
+        stress = 3 if piece.beatsperbar % 3 == 0 else 2
+        for i in range(piece.beatsperbar):
+            time = i / piece.beatsperbar * barlen
+            if i == 0:
+                velocity = 90
+            elif i % stress == 0:
+                velocity = 75
+            else:
+                velocity = 60
+            yield Message(
+                type="note_on",
+                note=piece.key_obj.noteonstep(step) + 36,
+                channel=15,
+                velocity=velocity,
+                time=time,
+            )
+
+    def bars(self, piece: Piece) -> Iterable[List[Message]]:
+        while True:
+            for harmony in piece.progression:
+                yield list(self.notesonbeat(piece, harmony))
+
+
 if __name__ == "__main__":
     piece = Piece(4, 100, "G", "major", [0, 3, 4])
-    Player(piece, [Beats(), OffBeats(), BasicChordProgression()]).play()
+    Player(
+        piece, [Beats(), OffBeats(), BasicChordProgression(), BasicBassLine()]
+    ).play()
