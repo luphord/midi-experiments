@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 from dataclasses import dataclass
-from typing import List, Iterable
+from typing import List, Iterable, Tuple
 from abc import ABC, abstractmethod
 from itertools import chain
 import time
 import mido
 from mido import Message
 
-bars = "4/4 3/4 6/8".split()
 keys = "C C# D D# E F F# G G# A A# B".split()
 
 
@@ -16,11 +15,11 @@ class Piece:
     """Core configuration of a piece of music.
     Expected to be 'modified' during performance.
 
-    >>> Piece("4/4", 100, "G", "major", [1, 4, 5])
-    Piece(bar='4/4', bpm=100, key='G', tonality='major', progression=[1, 4, 5])
+    >>> Piece(4, 100, "G", "major", [1, 4, 5])
+    Piece(beatsperbar=4, bpm=100, key='G', tonality='major', progression=[1, 4, 5])
     """
 
-    bar: str
+    beatsperbar: int
     bpm: int
     key: str
     tonality: str
@@ -52,8 +51,7 @@ class Player:
     def play(self):
         with open_default_port() as out_port:
             for bars in zip(*[track.bars(self.piece) for track in self.tracks]):
-                beatsperbar = 4
-                barlen = barlength(beatsperbar, piece.bpm)
+                barlen = barlength(piece.beatsperbar, piece.bpm)
                 messages = [
                     msg
                     for msg in sorted(chain(*bars), key=lambda msg: msg.time)
@@ -73,36 +71,29 @@ class Beats(Track):
             yield list(self.next_bar(piece))
 
     def next_bar(self, piece: Piece) -> Iterable[Message]:
-        barlen = barlength(4, piece.bpm)
-        yield Message(type="note_on", note=60, channel=9, velocity=90, time=0)
-        yield Message(
-            type="note_on", note=60, channel=9, velocity=60, time=0.25 * barlen
-        )
-        yield Message(
-            type="note_on", note=60, channel=9, velocity=60, time=0.5 * barlen
-        )
-        yield Message(
-            type="note_on", note=60, channel=9, velocity=60, time=0.75 * barlen
-        )
+        barlen = barlength(piece.beatsperbar, piece.bpm)
+        stress = 3 if piece.beatsperbar % 3 == 0 else 2
+        for i in range(piece.beatsperbar):
+            time = i / piece.beatsperbar * barlen
+            if i == 0:
+                velocity = 90
+            elif i % stress == 0:
+                velocity = 75
+            else:
+                velocity = 60
+            yield Message(
+                type="note_on", note=60, channel=9, velocity=velocity, time=time
+            )
 
 
 class OffBeats(Beats):
     def next_bar(self, piece: Piece) -> Iterable[Message]:
-        barlen = barlength(4, piece.bpm)
-        yield Message(
-            type="note_on", note=61, channel=9, velocity=50, time=0.125 * barlen
-        )
-        yield Message(
-            type="note_on", note=61, channel=9, velocity=50, time=0.375 * barlen
-        )
-        yield Message(
-            type="note_on", note=61, channel=9, velocity=50, time=0.625 * barlen
-        )
-        yield Message(
-            type="note_on", note=61, channel=9, velocity=50, time=0.875 * barlen
-        )
+        barlen = barlength(piece.beatsperbar, piece.bpm)
+        for i in range(piece.beatsperbar):
+            time = (i + 0.5) / piece.beatsperbar * barlen
+            yield Message(type="note_on", note=61, channel=9, velocity=50, time=time)
 
 
 if __name__ == "__main__":
-    piece = Piece("4/4", 100, "G", "major", [1, 4, 5])
+    piece = Piece(4, 100, "G", "major", [1, 4, 5])
     Player(piece, [Beats(), OffBeats()]).play()
