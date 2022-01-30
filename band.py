@@ -21,23 +21,25 @@ class Key:
             assert note < 12
         self.halftones = halftones + tuple(n + 12 for n in halftones)
 
-    def chord(self, msg, steps):
+    def chord(self, msg: Message, steps: Iterable[int]) -> Iterable[Message]:
         rel_note = (msg.note - self.base) % 12
         if rel_note in self.halftones:
             for steps in steps:
                 rel = self.halftones[(self.halftones.index(rel_note) + steps)]
                 yield msg.copy(note=msg.note - rel_note + rel)
 
-    def triad(self, msg):
+    def triad(self, msg: Message) -> Iterable[Message]:
         yield from self.chord(msg, (0, 2, 4))
 
-    def tetrad(self, msg):
+    def tetrad(self, msg: Message) -> Iterable[Message]:
         yield from self.chord(msg, (0, 2, 4, 6))
 
-    def noteonstep(self, step, octave):
+    def noteonstep(self, step: int, octave: int) -> int:
         return self.halftones[step] + self.base + octave * 12
 
-    def harmony_on(self, harmony: int, channel: int, velocity: int, time: int):
+    def harmony_on(
+        self, harmony: int, channel: int, velocity: int, time: int
+    ) -> Iterable[Message]:
         yield from piece.key_obj.triad(
             Message(
                 type="note_on",
@@ -65,7 +67,7 @@ class Piece:
     progression: List[int]
 
     @property
-    def key_obj(self):
+    def key_obj(self) -> Key:
         return Key(
             keys.index(self.key),
             major_halftones if self.tonality == "major" else minor_halftones,
@@ -85,7 +87,7 @@ def open_default_port():
     return mido.open_output()
 
 
-def barlength(beatsperbar, bpm):
+def barlength(beatsperbar: int, bpm: int) -> float:
     return beatsperbar * 60 / bpm
 
 
@@ -94,7 +96,7 @@ class Player:
     piece: Piece
     tracks: List[Track]
 
-    def play(self):
+    def play(self) -> None:
         with open_default_port() as out_port:
             for bars in zip(*[track.bars(self.piece) for track in self.tracks]):
                 barlen = barlength(piece.beatsperbar, piece.bpm)
@@ -149,7 +151,7 @@ class BasicChordProgression(Track):
 
 
 class BasicBassLine(Track):
-    def notesonbeat(self, piece, step):
+    def notesonbeat(self, piece: Piece, step: int):
         barlen = barlength(piece.beatsperbar, piece.bpm)
         stress = 3 if piece.beatsperbar % 3 == 0 else 2
         for i in range(piece.beatsperbar):
