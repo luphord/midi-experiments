@@ -38,12 +38,12 @@ class Key:
         return self.halftones[step] + self.base + octave * 12
 
     def harmony_on(
-        self, harmony: int, channel: int, velocity: int, time: int
+        self, step: int, octave: int, channel: int, velocity: int, time: int
     ) -> Iterable[Message]:
         yield from piece.key_obj.triad(
             Message(
                 type="note_on",
-                note=self.noteonstep(harmony, 5),
+                note=self.noteonstep(step, octave),
                 channel=channel,
                 velocity=velocity,
                 time=time,
@@ -145,8 +145,8 @@ class OffBeats(Beats):
 class BasicChordProgression(Track):
     def bars(self, piece: Piece) -> Iterable[List[Message]]:
         while True:
-            for harmony in piece.progression:
-                yield list(piece.key_obj.harmony_on(harmony, 0, 90, 0.0))
+            for step in piece.progression:
+                yield list(piece.key_obj.harmony_on(step, 5, 0, 90, 0.0))
                 # -2 octaves: 1 5 11
 
 
