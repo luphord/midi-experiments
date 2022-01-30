@@ -146,8 +146,37 @@ class BasicChordProgression(Track):
     def bars(self, piece: Piece) -> Iterable[List[Message]]:
         while True:
             for step in piece.progression:
-                yield list(piece.key_obj.harmony_on(step, 5, 0, 90, 0.0))
-                # -2 octaves: 1 5 11
+                barlen = barlength(piece.beatsperbar, piece.bpm)
+                yield list(piece.key_obj.harmony_on(step, 5, 0, 90, 0.0)) + [
+                    Message(
+                        type="note_on",
+                        note=piece.key_obj.noteonstep(0, 3),
+                        channel=0,
+                        velocity=70,
+                        time=0,
+                    ),
+                    Message(
+                        type="note_on",
+                        note=piece.key_obj.noteonstep(5, 3),
+                        channel=0,
+                        velocity=70,
+                        time=0.5 / piece.beatsperbar * barlen,
+                    ),
+                    Message(
+                        type="note_on",
+                        note=piece.key_obj.noteonstep(3, 4),
+                        channel=0,
+                        velocity=70,
+                        time=1 / piece.beatsperbar * barlen,
+                    ),
+                    Message(
+                        type="note_on",
+                        note=piece.key_obj.noteonstep(5, 3),
+                        channel=0,
+                        velocity=70,
+                        time=1.5 / piece.beatsperbar * barlen,
+                    ),
+                ]
 
 
 class BasicBassLine(Track):
