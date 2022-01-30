@@ -34,14 +34,14 @@ class Key:
     def tetrad(self, msg):
         yield from self.chord(msg, (0, 2, 4, 6))
 
-    def noteonstep(self, step):
-        return self.halftones[step] + self.base
+    def noteonstep(self, step, octave):
+        return self.halftones[step] + self.base + octave * 12
 
     def harmony_on(self, harmony: int, channel: int, velocity: int, time: int):
         yield from piece.key_obj.triad(
             Message(
                 type="note_on",
-                note=self.noteonstep(harmony) + 60,
+                note=self.noteonstep(harmony, 5),
                 channel=channel,
                 velocity=velocity,
                 time=time,
@@ -145,6 +145,7 @@ class BasicChordProgression(Track):
         while True:
             for harmony in piece.progression:
                 yield list(piece.key_obj.harmony_on(harmony, 0, 90, 0.0))
+                # -2 octaves: 1 5 11
 
 
 class BasicBassLine(Track):
@@ -161,7 +162,7 @@ class BasicBassLine(Track):
                 velocity = 60
             yield Message(
                 type="note_on",
-                note=piece.key_obj.noteonstep(step) + 36,
+                note=piece.key_obj.noteonstep(step, 3),
                 channel=15,
                 velocity=velocity,
                 time=time,
